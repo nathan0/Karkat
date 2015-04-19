@@ -56,6 +56,7 @@ class Youtube(object):
                    "refresh_token": self.refresh,
                    "grant_type": "refresh_token"}
         answer = requests.post("https://accounts.google.com/o/oauth2/token", data=payload).json()
+        print(answer)
         self.token = answer["access_token"]
         self.refresh_after = time.time() + int(answer["expires_in"])
         return answer

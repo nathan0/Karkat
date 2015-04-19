@@ -30,10 +30,10 @@ class Process(threading.Thread):
         outfile = None
         for line in iter(self.stdout.readline, b""):
             line_buffer.append(line)
-            if lines < 20:
+            if lines < 4:
                 line = line.decode('utf-8')
                 self.parent.stream.message(line, self.target)
-            elif lines == 20:
+            elif lines == 4:
                 outfile = tempfile.NamedTemporaryFile(delete=False)
                 for i in line_buffer:
                     outfile.write(i)
@@ -46,7 +46,8 @@ class Process(threading.Thread):
         self.parent.active_shell = False
         if time.time() - started > 2:
             exitcode = self.shell.poll()
-            self.parent.stream.message("%.2dbash│ Program exited with code %s"%(5 if exitcode else 12, exitcode), self.target)
+            if exitcode is not None:
+                self.parent.stream.message("%.2dbash│ Program exited with code %s"%(5 if exitcode else 12, exitcode), self.target)
 
 class Shell(object):
 

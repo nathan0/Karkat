@@ -21,15 +21,15 @@ def numeric_priority(item):
         return float(match.group(1))
 
 def alpha_priority(letters):
-    """ 
-    Calculate the numeric priority corresponding to an alphabetic priority. 
     """
-    return sum((ord(a) - ord("A") + 1) * 26 ** i 
+    Calculate the numeric priority corresponding to an alphabetic priority.
+    """
+    return sum((ord(a) - ord("A") + 1) * 26 ** i
                for i, a in enumerate(letters[::-1]))
 
 
 def priority_sorted(queue):
-    """ 
+    """
     An item with a priority has the form ^\(([A-Z]+|\d+(\.\d+))\)\S+(.+)$
     where \1 is the priority and \2 is the rest of the todo list.
 
@@ -471,7 +471,7 @@ class Queue(Callback):
     # TODO: Alter hidden tags
     @command("unhide", r"(.+)")
     def unhide(self, server, msg, query):
-        yield from self.untag.funct(self, server, msg, "#hidden", query)        
+        yield from self.untag.funct(self, server, msg, "#hidden", query)
 
     @command("qexport", r"(.*)")
     def qexport(self, server, msg, query):
@@ -488,7 +488,7 @@ class Queue(Callback):
         data = "\n".join(i[1] for i in q)
         postres = requests.post("https://api.github.com/gists", data=json.dumps({"files": {"%s-todo.txt" % (msg.address.nick): {"content": data}}}))
         response = postres.json()
-        return "06│ Exported to %s." % response["html_url"]
+        return "06│ Exported to %s" % response["html_url"]
 
     @command("qimport", r"(-m\s+)?(\S+)")
     def qimport(self, server, msg, merge, url):

@@ -1,7 +1,7 @@
 from bot.events import command
 
 
-@command("topic", "(.+)", rank="%")
+@command("topic", "(.+)", rank="+")
 def topic(server, msg, topic):
     topics = server.topic[server.lower(msg.context)].split(" | ")
     while topics:

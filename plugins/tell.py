@@ -133,7 +133,6 @@ class Reminder(Callback):
             self.send_messages(nick, channel)
 
     def send_messages(self, user, context, immediate=False):
-        popindices = []
         for i in self.reminders[self.server.lower(user)]:
             if time.time() >= i["after"] - 1: # Fudge factor
                 method = {"pm": (user, "PRIVMSG"),
@@ -142,13 +141,7 @@ class Reminder(Callback):
                          "channel message": (context, "PRIVMSG"),
                          "notice": (user, "NOTICE")}[i["method"]]
                 self.server.message("03│ ✉ │ %s: %s · from %s · ⌚ %s" % (user, i["message"], i["sender"], pretty_date(time.time() - i["time"])), *method)
-                @command("reply", r"(.+)")
-                def tellreply(server, message, text):
-                    return self.reminder.funct(self, server, message, i["sender"], "", text, "", i["method"], "", "")
-                self.server.reply_hook = tellreply
-                popindices.append(i)
-        for i in popindices[::-1]:
-            self.reminders[self.server.lower(user)].remove(i)
+                self.reminders[self.server.lower(user)].remove(i)
         with open(self.server.get_config_dir(self.REMINDERF), "w") as f:
             json.dump(self.reminders, f)
 

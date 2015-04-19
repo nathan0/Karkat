@@ -4,6 +4,7 @@ import math
 import re
 import sqlite3
 import time
+import util
 from util.text import ircstrip, strikethrough
 from util.irc import Address, Message
 from bot.events import Callback, command

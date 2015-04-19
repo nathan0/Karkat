@@ -32,6 +32,7 @@ class ModManager(Callback):
     # Disable/Enable plugins
 
     def sync(self, server):
+        #open(self.bfile, "w").write(json.dumps(server.blacklist))
         with open(self.bfile, "w") as bf:
             bf.write(json.dumps(server.blacklist))
 
@@ -43,10 +44,11 @@ class ModManager(Callback):
                                                   list(server.blacklist[None]))
         if mod not in blacklisted:
             blacklisted.append(mod)
+            self.sync(server)
             return "12Module Manager│ Module %s disabled." % mod
         else:
+            self.sync(server)
             return "12Module Manager│ %s is already blacklisted." % mod
-        self.sync(server)
 
     @Callback.inline
     @command("enable", "([^ ]+)", prefixes=("",":"), admin=True,
@@ -56,10 +58,11 @@ class ModManager(Callback):
                                                   list(server.blacklist[None]))
         if mod in blacklisted:
             blacklisted.remove(mod)
+            self.sync(server)
             return "12Module Manager│ Module %s re-enabled." % mod
         else:
+            self.sync(server)
             return "12Module Manager│ %s is not blacklisted." % mod
-        self.sync(server)
 
     @command("disabled")
     def list_disabled(self, server, message):

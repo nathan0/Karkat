@@ -212,9 +212,7 @@ class Interpreter(object):
                     except BaseException as err:
                         # TODO: Clean this.
                         server.printer.message(
-                            "\x02「\x02\x0305 "
-                            "oh wow"
-                            "\x0307 \x0315%s \x03\x02」\x02 "
+                            "\x02%s\x02: "
                             % (repr(err)[:repr(err).find("(")]) + str(err), 
                                msg.context)
                 self.curcmd = []

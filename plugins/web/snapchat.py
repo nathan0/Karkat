@@ -9,6 +9,8 @@ import subprocess
 import zipfile
 import uuid
 
+import util
+
 from io import BytesIO
 
 import pysnap
@@ -20,8 +22,8 @@ from util.text import pretty_date, ircstrip
 from util import scheduler
 from bot.events import Callback, command
 
-snapfolder = "/var/www"
-public_url = "http://xe.tetrap.us/"
+snapfolder = "snaps"
+public_url = "http://snaps.nathan.nu/"
 prefix = "\x0308│\U0001f47b│\x03 "
 
 try:

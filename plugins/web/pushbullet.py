@@ -71,46 +71,6 @@ class PushListener(threading.Thread):
             self.update()
         self.last = time.time()
                     
-def push_format(push, sent, users):
-    fields = []
-    # TODO: shorten long fields
-    if push["type"] in ["note", "link", "file"]:
-        message_field = []
-        if "file_url" in push:
-            fields.append(url.format(url.shorten(push["file_url"])))
-        if "title" in push:
-            message_field.append("\x0303%s\x03" % push["title"])
-        if "body" in push:
-            message_field.append(push["body"].replace("\n", " ")) # TODO: temporary
-        if message_field:
-            fields.append(" ".join(message_field))
-        if "url" in push:
-            try:
-                fields.append(url.format(url.shorten(push["url"])))
-            except:
-                fields.append(url.format(push["url"]))
-    elif push["type"] == "address":
-        if "name" in push:
-            fields.append("\x0303 📍 %s\x03" % push["name"])
-        if "address" in push:
-            fields.append(push["address"])
-#    elif push["type"] == "checklist":
-#        self.queue(push)
-
-    if push["iden"] in sent:
-        sent.remove(push["iden"])
-        tag, email = "to", push["receiver_email"]
-    else:
-        tag, email = "from", push["sender_email"]
-    if email.lower() in users:
-        user = users[email.lower()]
-    else:
-        user = "\x0303" + email + "\x03"
-
-    fields.append(tag + " " + user)
-    fields.append("\u231a " + pretty_date(time.time() - push["modified"]))
-    
-    return "03│ ⁍ │ " + " · ".join(fields)
 
 class PushBullet(Callback):
     def __init__(self, server):
@@ -118,8 +78,6 @@ class PushBullet(Callback):
         self.configf = server.get_config_dir("pushbullet.json")
         self.config = Config(self.configf, default={"accounts":{}, "users":{}})
         self.listeners = []
-        self.skip = set()
-        self.sent = set()
         self.channels = {}
         self.lower = server.lower
         self.listen()
@@ -145,19 +103,47 @@ class PushBullet(Callback):
         if not pushes:
             return
         for push in pushes:
-            if push["iden"] in self.skip:
-                self.skip.remove(push["iden"])
-            else:
-                if push["iden"] not in self.sent:
-                    @command("reply", r"(?:(https?://\S+|:.+?:))?\s*(.*)")
-                    def pushreply(server, message, link, text, push=push):
-                        user = push["sender_email"]
-                        return self.send_push.funct(self, server, message, user, link, text)
-                    self.server.reply_hook = pushreply
-                self.server.message(push_format(push, self.sent, self.config["users"]), account)
+            fields = []
+            #print(push)
+            # TODO: shorten long fields
+            if 'type' in push:
+                if push["type"] in ["note", "link", "file"]:
+                    message_field = []
+                    if "file_url" in push:
+                        fields.append(url.format(url.shorten(push["file_url"])))
+                    if "title" in push:
+                        message_field.append("\x0303%s\x03" % push["title"])
+                    if "body" in push:
+                        message_field.append(push["body"].replace("\n", " ")) # TODO: temporary
+                    if message_field:
+                        fields.append(" ".join(message_field))
+                    if "url" in push:
+                        fields.append(url.format(url.shorten(push["url"])))
+                elif push["type"] == "address":
+                    if "name" in push:
+                        fields.append("\x0303 📍 %s\x03" % push["name"])
+                    if "address" in push:
+                        fields.append(push["address"])
+                elif push["type"] == "checklist":
+                    self.queue(push)
 
-            acc["last"] = max(push["modified"], acc["last"])
-        self.save(account, acc)
+                users = self.config["users"]
+                if push["sender_email"] == self.channels[account]["email"]:
+                    tag, email = "to", push["receiver_email"]
+                else:
+                    tag, email = "from", push["sender_email"]
+                if email.lower() in users:
+                    user = users[email.lower()]
+                else:
+                    user = "\x0303" + email + "\x03"
+
+                fields.append(tag + " " + user)
+                fields.append("\u231a " + pretty_date(time.time() - push["modified"]))
+
+                self.server.message("03│ ⁍ │ " + " · ".join(fields), account)
+
+                acc["last"] = max(push["modified"], acc["last"])
+            self.save(account, acc)
 
 
     def save(self, channel, account):
@@ -212,7 +198,7 @@ class PushBullet(Callback):
     #                   acc["token"])
         
         
-    @command("send", r"(\S+(?:,\s*\S+)*)(?:\s+(https?://\S+|:.+?:))?(?:\s+(.+))?")
+    @command("send", r"(\S+(?:,\s*\S+)*)(?:\s+(https?://\S+|:.+?:))?(?:\s+(.+))?", admin=True)
     def send_push(self, server, msg, user, link, text):
         try:
             acc = self.config["accounts"][server.lower(msg.context)]
@@ -225,8 +211,6 @@ class PushBullet(Callback):
         if user is None:
             return "03│ ⁍ │ %s has not associated their pushbullet." % user
 
-        push["body"] = " · from " + msg.address.nick
-
         if link:
             if link.startswith(":"):
                 link = image_search(link[1:-1])[0]["url"] 
@@ -237,14 +221,13 @@ class PushBullet(Callback):
         if text:
             if ": " in text:
                 push["title"], text = text.split(": ", 1)
-            push["body"] = text + push["body"]
+            push["body"] = text
         push["email"] = user
-        self.sent.add(self.push(push, acc["token"]))
+        self.push(push, acc["token"])
 
     def push(self, push, token):
         headers = {"Authorization": "Bearer " + token}
-        response = requests.post("https://api.pushbullet.com/v2/pushes", headers=headers, data=push).json()
-        return response["iden"]
+        requests.post("https://api.pushbullet.com/v2/pushes", headers=headers, data=push)
 
     def get_user(self, user):
         if "@" not in user:

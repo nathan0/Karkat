@@ -4,8 +4,6 @@ import traceback
 import queue
 
 
-# TODO: consider removing singleton constraint
-
 class Scheduler(threading.Thread):
     _scheduler = None
     _schedlock = threading.Lock()

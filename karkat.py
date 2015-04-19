@@ -1,4 +1,4 @@
-#! /usr/bin/env python3.3
+#! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
 Usage: %(name)s [options] <config>
@@ -32,7 +32,6 @@ __version__ = 2.0
 socket.setdefaulttimeout(1800)
 
 GP_CALLERS = 2
-
 
 def main():
     """
