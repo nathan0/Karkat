@@ -134,12 +134,8 @@ class Reminder(Callback):
             self.send_messages(nick, channel)
 
     def send_messages(self, user, context, immediate=False):
-<<<<<<< HEAD
-        for i in self.reminders[self.server.lower(user)]:
-=======
         popindices = []
         for i in self.reminders.get(self.server.lower(user), []):
->>>>>>> c8ef54ec7460377cc3a0b53887f4d691ac31103b
             if time.time() >= i["after"] - 1: # Fudge factor
                 method = {"pm": (user, "PRIVMSG"),
                          "private message": (user, "PRIVMSG"),
