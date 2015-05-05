@@ -374,7 +374,7 @@ class Connection(threading.Thread, object):
         config = yaml.safe_load(open(conf))
         self.sock = None
         self.server = tuple(config["Server"])
-        self.username = config["Username"]
+        self.ident = config["Username"]
         self.password = config.get("Password", None)
         self.realname = config["Real Name"]
         self.mode = config.get("Mode", 0)
@@ -408,7 +408,7 @@ class Connection(threading.Thread, object):
         # Try our first nickname.
         nicks = collections.deque(self.nicks)
         self.nick = nicks.popleft()
-        self.sendline("USER %s * * :%s\r\n" % (self.username, 
+        self.sendline("USER %s * * :%s\r\n" % (self.ident, 
                                                 self.realname))
         if self.password:
             self.sendline("PASS %s" % (self.password))
@@ -721,7 +721,7 @@ class StatefulBot(SelectiveBot):
         self.listbuffer = {}
         self.topic = {}
         self.hostmask = None
-        #self.username = None
+        self.username = None
         self.rawmap = {346:"I", 348:"e", 367:"b", 386:"q", 388:"a"} # TODO: parse these.
         self.register_all({"quit" : [self.user_quit],
                            "part" : [self.user_left],
