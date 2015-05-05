@@ -373,7 +373,7 @@ class Connection(threading.Thread, object):
         config = yaml.safe_load(open(conf))
         self.sock = None
         self.server = tuple(config["Server"])
-        self.ident = config["Username"]
+        self.user = config.get("Username","Karkat")
         self.realname = config["Real Name"]
         self.mode = config.get("Mode", 0)
         self.ssl = config.get("SSL", False)
@@ -407,7 +407,7 @@ class Connection(threading.Thread, object):
         # Try our first nickname.
         nicks = collections.deque(self.nicks)
         self.nick = nicks.popleft()
-        self.sendline("USER %s %s * :%s\r\n" % (self.ident, 
+        self.sendline("USER %s %s * :%s\r\n" % (self.user, 
                                                 self.mode, 
                                                 self.realname))
         if self.password:
