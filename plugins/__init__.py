@@ -15,11 +15,6 @@ __modules__ = ["games",
                "queue",
                "inspire",
                "topic",
-<<<<<<< HEAD
-               "spell",
-               "balance"]
-=======
                "reply",
                "balance",
                "infobot"]
->>>>>>> c8ef54ec7460377cc3a0b53887f4d691ac31103b
