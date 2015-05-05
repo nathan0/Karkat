@@ -11,6 +11,5 @@ __modules__ = ["autojoin",
                "autorejoin", 
                "modulemanager", 
                "ctcp",
-               "iptracker",
                "restart",
                "watchdog"]

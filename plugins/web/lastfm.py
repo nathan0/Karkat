@@ -1,3 +1,7 @@
+"""
+Services integrating with Last.FM user profiles.
+"""
+
 import collections
 import json
 import math
@@ -6,7 +10,6 @@ import re
 import sys
 import time
 import random
-import operator
 from urllib.parse import quote_plus, urlencode
 from functools import partial
 
@@ -64,7 +67,8 @@ else:
     yt = youtube.youtube
 
 def cut(songs, seconds=25 * 60):
-    if not songs: return []
+    if not songs: 
+        return []
     split = [[songs.pop(0)]]
 
     songs = collections.deque(songs)
@@ -130,7 +134,7 @@ class LastFM(Callback):
                               "username": username,
                               "format": "json"})
             extradata = requests.get(LastFM.API_URL + args).json()["track"]
-
+            
             trackdata["loved"] = "04♥ · " * int(extradata["userloved"])
             listens, listeners, scrobbled = [int(extradata[x]) for x in ("userplaycount", "listeners", "playcount")]
             # Calculate average playcount per listener
@@ -164,7 +168,14 @@ class LastFM(Callback):
         return trackdata
 
     @command("setlfm savelfm save", r"(\S*)")
-    def setlfm(self, server, message, username):
+    def setlfm(self, server, message, 
+               username: "Your Last.FM username"):
+        """
+        Associates a nickname with a Last.FM account.
+        The stored nickname will be used as an alias for your username in all Last.FM requests.
+
+        If [username] is not specified, your current nick is used.
+        """
         nick = server.lower(message.address.nick)
         if not username:
             username = message.address.nick
@@ -286,7 +297,7 @@ class LastFM(Callback):
             trackdata["tad"] = "· %s" % trackdata["timeago"]
             track = recent.track
             difftime["recent"] = time.time()
-
+        
         trackdata["duration"] = "⌛ %dm%.2ds" % divmod(track.get_duration()/1000, 60)
         trackdata["artist"], trackdata["title"] = (track.get_artist(), track.get_title())
         trackname = "%(artist)s - %(title)s" % trackdata
@@ -298,7 +309,7 @@ class LastFM(Callback):
             template = "04│ ♫ │ %(loved)s%(artist)s%(album)s · %(title)s\n"\
                        "04│ ♫ │ %(listens)s%(timeago)s%(duration)s %(link)s"
         else:
-            template = "04│ %(loved)s%(artist)s · %(title)s %(dotlink)s"
+            template = "04│ %(loved)s%(artist)s · %(title)s (%(duration)s) %(tad)s%(dotlink)s"
         difftime["template"] = time.time()
         for i in util.parallelise(jobs):
             trackdata.update(i)
@@ -364,7 +375,7 @@ class LastFM(Callback):
             json.dump({}, compfile)
 
     def compare_rand(self, server, line) -> "ALL":
-        if time.time() - self.lastcompare > max(300, 604800/len(self.users)**2):
+        if self.users and time.time() - self.lastcompare > max(300, 604800/len(self.users)**2):
             user1 = random.choice(list(self.users.values()))
             user2 = random.choice(list(self.users.values()))
             self.cached_compare(user1, user2)
@@ -438,14 +449,20 @@ class LastFM(Callback):
             yield "04│ ♫ │ Best %d of %d matches for %s shown." % (len(users[:4]), len(users), dname)
 
     @command("lastfm", "(\S*)", templates={Callback.USAGE: "04│ ♫ │ Usage: [.@]lastfm nick"})
-    def lastfm(self, server, message, user):
-        if not user:
-            user = message.address.nick
+    def lastfm(self, server, message, 
+               nick: "IRC Nickname"):
+        """
+        Display a link to [nick]'s associated Last.FM profile.
 
-        lowername = server.lower(user)
+        If [nick] is not provided, your own nickname is used.
+        """
+        if not nick:
+            nick = message.address.nick
+
+        lowername = server.lower(nick)
         if lowername in self.users:
             return "04│ ♫ │ 12http://last.fm/user/" + self.users[lowername]
-        return "04│ ♫ │ %s has not associated their Last.FM" % user
+        return "04│ ♫ │ %s has not associated their Last.FM" % nick
 
     @command("collage", "(-[cap]+\s+)?((?:(?:3x3|4x4|5x5|2x8|7d|1m|3m|6m|12m|overall)\s*)+)?(\S+)?")
     def collage(self, server, message, flags, data, user):

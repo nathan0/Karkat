@@ -379,12 +379,12 @@ class Connection(threading.Thread, object):
         self.realname = config["Real Name"]
         self.mode = config.get("Mode", 0)
         self.ssl = config.get("SSL", False)
-        
+
         self.nick = None
         self.nicks = config["Nick"]
 
         self.admins = config["Admins"]
-        self.config = config 
+        self.config = config
         self.name = conf.split(".")[0]
 
         self.connected = False

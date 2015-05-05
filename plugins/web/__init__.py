@@ -1,1 +1,2 @@
-__modules__ = ["wolfram", "lastfm", "filth", "images", "preview", "urban", "fiftyfifty", "pushbullet"]
+__modules__ = ["wolfram", "lastfm", "filth", "images", "preview", "urban", "fiftyfifty", "pushbullet", 
+"twitter"]
