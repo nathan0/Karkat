@@ -61,6 +61,8 @@ class Reminder(Callback):
 
     def __init__(self, server):
         self.waiting = {}
+        self.server = server
+
         try:
             self.reminders = json.load(open(server.get_config_dir(self.REMINDERF)))
         except FileNotFoundError:
@@ -72,7 +74,6 @@ class Reminder(Callback):
                     self.send_messages([i for i in server.channels[comchans[0]] if server.lower(i) == server.lower(user)][0], comchans[0])
             # TODO: spawn jobs for the rest of the reminders
 
-        self.server = server
         super().__init__(server)
 
     @command("remind tell note", r"^(?:to\s+)?(\S+):?\s+(?:(?:in|after)\s+%(time)s\s+)?(?:that|to\s+)?(what to \S+|.+?)(?:\s+(?:in|after)\s+%(time)s)?(?:\s+via\s+(snapchat|pm|notice|channel message|message|private message|#\S+))?(?:\s+every\s+%(time)s(?:\s+until\s+(cancelled|active))?)?$" % {"time": time_expression})
@@ -133,7 +134,12 @@ class Reminder(Callback):
             self.send_messages(nick, channel)
 
     def send_messages(self, user, context, immediate=False):
+<<<<<<< HEAD
         for i in self.reminders[self.server.lower(user)]:
+=======
+        popindices = []
+        for i in self.reminders.get(self.server.lower(user), []):
+>>>>>>> c8ef54ec7460377cc3a0b53887f4d691ac31103b
             if time.time() >= i["after"] - 1: # Fudge factor
                 method = {"pm": (user, "PRIVMSG"),
                          "private message": (user, "PRIVMSG"),
