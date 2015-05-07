@@ -200,6 +200,22 @@ class Queue(Callback):
 
         yield from self.displayAll(q, 25 if msg.prefix == '!' else 5)
 
+    @command("viewtodo")
+    def viewtodo(self, server, msg):
+        nick = msg.text.split()[1].strip()
+        queue = self.queues.setdefault(nick, [])
+
+        if not queue:
+            yield "\x0306│\x03 {} has no queue".format(nick)
+            return
+
+        q = self.find(queue)
+
+        if not q:
+            yield "\x0306│\x03 No matching items."
+            return
+
+        yield from self.displayAll(q, 25 if msg.prefix == '!' else 5)
 
     @command("choose", r"^([^,]*[^,\d\s][^,]*|)$")
     def choose(self, server, msg, query):
