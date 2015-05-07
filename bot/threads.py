@@ -21,6 +21,7 @@ import util
 from util.irc import Address, Callback, MAX_MESSAGE_SIZE
 from util.text import lineify, TimerBuffer, Buffer, ircstrip
 
+textColor = "14"
 
 class Work(queue.Queue):
     """
@@ -234,43 +235,43 @@ class Printer(WorkerThread):
             target = Address(line[0]).nick
         return PrinterBuffer(self, target, method)
 
-ColourPrinter = Printer
+#ColourPrinter = Printer
 
-#class ColourPrinter(Printer):
-#    """
-#    Add a default colour to messages.
-#    """
-#    def __init__(self, sock):
-#        Printer.__init__(self, sock)
-#        self.color = "14"
-#        self.hasink = True
-#
-#    def defaultcolor(self, data):
-#        """
-#        Parse a message and colour it in.
-#        """
-#        value = []
-#        color = self.color
-#        for line in data.rstrip().split("\n"):
-#            if " " in line and line[0] + line[-1] == "\x01\x01":
-#                value.append("%s %s" % (line.split(" ")[0],
-#                                        self.defaultcolor(line.split(" ", 1)[-1])))
-#            else:
-#                line = re.sub("\x03([^\d])",
-#                              lambda x: (("\x03%s" % (color)) + (x.group(1) or "")),
-#                              line)
-#                line = line.replace("\x0f", "\x0f\x03%s" % (color))
-#                value.append("\x03%s%s" % (color, line))
-#        return ("\n".join(value)) # TODO: Minify.
-#
-#    def pack(self, msg, recipient, method):
-#        msg = str(msg)
-#        if method.upper() in ["PRIVMSG", "NOTICE"] and self.hasink:
-#            msg = super().pack(self.defaultcolor(msg), recipient, method)
-#        else:
-#            msg = super().pack(msg, recipient, method)
-#
-#        return msg
+class ColourPrinter(Printer):
+    """
+    Add a default colour to messages.
+    """
+    def __init__(self, sock):
+        Printer.__init__(self, sock)
+        self.color = "14"
+        self.hasink = True
+
+    def defaultcolor(self, data):
+        """
+        Parse a message and colour it in.
+        """
+        value = []
+        color = textColor
+        for line in data.rstrip().split("\n"):
+            if " " in line and line[0] + line[-1] == "\x01\x01":
+                value.append("%s %s" % (line.split(" ")[0],
+                                        self.defaultcolor(line.split(" ", 1)[-1])))
+            else:
+                line = re.sub("\x03([^\d])",
+                              lambda x: (("\x03%s" % (color)) + (x.group(1) or "")),
+                              line)
+                line = line.replace("\x0f", "\x0f\x03%s" % (color))
+                value.append("\x03%s%s" % (color, line))
+        return ("\n".join(value)) # TODO: Minify.
+
+    def pack(self, msg, recipient, method):
+        msg = str(msg)
+        if method.upper() in ["PRIVMSG", "NOTICE"] and self.hasink:
+            msg = super().pack(self.defaultcolor(msg), recipient, method)
+        else:
+            msg = super().pack(msg, recipient, method)
+
+        return msg
 
 
 class MultiPrinter(ColourPrinter):
