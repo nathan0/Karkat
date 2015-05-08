@@ -22,6 +22,7 @@ from util.irc import Address, Callback, MAX_MESSAGE_SIZE
 from util.text import lineify, TimerBuffer, Buffer, ircstrip
 
 textColor = "14"
+hasink = True
 
 class Work(queue.Queue):
     """
@@ -266,7 +267,7 @@ class ColourPrinter(Printer):
 
     def pack(self, msg, recipient, method):
         msg = str(msg)
-        if method.upper() in ["PRIVMSG", "NOTICE"] and self.hasink:
+        if method.upper() in ["PRIVMSG", "NOTICE"] and hasink:
             msg = super().pack(self.defaultcolor(msg), recipient, method)
         else:
             msg = super().pack(msg, recipient, method)
