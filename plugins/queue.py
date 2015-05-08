@@ -202,7 +202,7 @@ class Queue(Callback):
 
     @command("viewtodo")
     def viewtodo(self, server, msg):
-        nick = msg.text.split()[1].strip()
+        nick = msg.text.split()[1].strip().lower()
         queue = self.queues.setdefault(nick, [])
 
         if not queue:
