@@ -198,7 +198,7 @@ class PushBullet(Callback):
     #                   acc["token"])
         
         
-    @command("send", r"(\S+(?:,\s*\S+)*)(?:\s+(https?://\S+|:.+?:))?(?:\s+(.+))?", admin=True)
+    @command("send", r"(\S+(?:,\s*\S+)*)(?:\s+(https?:\/\/\S+|:.+?:))?(?:\s+(.+))?", admin=True)
     def send_push(self, server, msg, user, link, text):
         try:
             acc = self.config["accounts"][server.lower(msg.context)]

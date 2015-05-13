@@ -241,7 +241,7 @@ class ColourPrinter(Printer):
     """
     def __init__(self, sock):
         Printer.__init__(self, sock)
-        self.color = "14"
+        self.color = "15"
         self.hasink = True
 
     def defaultcolor(self, data):
