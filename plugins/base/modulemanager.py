@@ -83,7 +83,7 @@ class ModManager(Callback):
             for cb in [x for x in bot.callbacks[i] if x.name.startswith(mod)]:
                 removed.append(cb)
                 bot.callbacks[i].remove(cb)
-                if (hasattr(cb.funct, "__self__") 
+                if (hasattr(cb.funct, "__self__")
                     and hasattr(cb.funct.__self__, "__destroy__")
                     and cb.funct.__self__ not in destroyed):
                     cb.funct.__self__.__destroy__(bot)
@@ -91,13 +91,13 @@ class ModManager(Callback):
         return removed
 
 
-    @command("modules plugins", "(.*)", 
+    @command("modules plugins", "(.*)",
                 admin=True) # NTS: Figure out how this function signature works
     def list_modules(self, server, message, mask):
         modules = set()
         for ls in server.callbacks.values():
             modules |= {i.module.__name__ for i in ls if i.module}
-        table = namedtable([i.split(".")[-1] for i in modules 
+        table = namedtable([i.split(".")[-1] for i in modules
                               if i.startswith(mask)] or ["No matches."],
                            size=72,
                            header="Loaded modules ")
@@ -106,7 +106,7 @@ class ModManager(Callback):
 
     @Callback.inline
     @command("unload", "(.+)", prefixes=("",":"),
-                admin=True, 
+                admin=True,
                 templates={Callback.USAGE: "12Module Manager│ Usage: [!@]unload <module>"})
     def unregister_modules(self, server, message, module):
         removed = {x.module.__name__ for x in self.remove_modules(server, module)}
@@ -123,7 +123,7 @@ class ModManager(Callback):
 
     @Callback.inline
     @command("reload", "(.+)", prefixes=("",":"),
-                admin=True, 
+                admin=True,
                 templates={ Callback.USAGE: "12Module Manager│ Usage: [!@]reload <module>",
                             Callback.ERROR: "12Module Manager│ Module failed to load."})
     def reload_modules(self, server, message, module):
@@ -134,7 +134,7 @@ class ModManager(Callback):
         if removed:
             for i in removed:
                 mod = i.module
-                if mod.__name__ in reloaded: 
+                if mod.__name__ in reloaded:
                     continue
                 if "__destroy__" in dir(mod):
                     mod.__destroy__()
@@ -154,7 +154,7 @@ class ModManager(Callback):
 
     @Callback.inline
     @command("load", "(.+)", prefixes=("",":"),
-                admin=True, 
+                admin=True,
                 templates={ Callback.USAGE: "12Module Manager│ Usage: [!@]load <module>",
                             Callback.ERROR: "05Module Manager│ Module failed to load."})
     def load_modules(self, server, message, module):

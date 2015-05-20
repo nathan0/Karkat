@@ -128,10 +128,13 @@ class PushBullet(Callback):
                     self.queue(push)
 
                 users = self.config["users"]
-                if push["sender_email"] == self.channels[account]["email"]:
-                    tag, email = "to", push["receiver_email"]
+                if "sender_email" in push:
+                    if push["sender_email"] == self.channels[account]["email"]:
+                        tag, email = "to", push["receiver_email"]
+                    else:
+                        tag, email = "from", push["sender_email"]
                 else:
-                    tag, email = "from", push["sender_email"]
+                    tag, email = "from", push["receiver_email"]
                 if email.lower() in users:
                     user = users[email.lower()]
                 else:
