@@ -30,6 +30,6 @@ class Twitter(Callback):
                     tweet = tweet.replace("@{}".format(_m),"\x03{}@{}\x03".format(mcolor,_m))
                 for _h in hashtags:
                     tweet = tweet.replace("#{}".format(_h),"\x03{}#\x02\x02{}\x03".format(hcolor,_h))
-                return "\x0308Tweet│\x03 {}".format(tweet)
+                return "\x0300,10Tweet│\x03 {}".format(tweet)
 
 __initialise__ = Twitter
