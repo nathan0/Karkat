@@ -975,7 +975,7 @@ class StatefulBot(SelectiveBot):
         """ Handles JOINs """
         words = line.split()
         nick = Address(words[0]).nick
-        channel = self.lower(words[2][1:])
+        channel = self.lower(words[2].lstrip(":"))
         if self.eq(nick, self.nick):
             self.channels[channel] = set()
             self.sendline("WHO %s" % words[2]) # TODO: replace with connection object shit.
