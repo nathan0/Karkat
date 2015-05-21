@@ -46,7 +46,8 @@ class AutoJoin(object):
     @command("autojoin", public=":", private="")
     def trigger(self, server, msg):
         """ Alters saved channel list. """
-        if msg.context.startswith("#"):
+        user, target, text = msg.address, msg.context, msg.text
+        if server.is_admin(user.hostmask) and msg.context.startswith("#"):
             if server.isIn(msg.context, self.chans):
                 self.chans.remove(server.lower(msg.context))
                 self.sync()
