@@ -7,8 +7,8 @@ hcolor = "06"
 mcolor = "11"
 r = re.compile(r"^https?:\/\/twitter\.com\/(?:#!\/)?(\w+)\/status(?:es)?\/(\d+)")
 n = re.compile(r"<.*?>",re.DOTALL)
-m = re.compile("@(.*?)\)?\s")
-h = re.compile("#(.*?)\s")
+m = re.compile("(@[a-z0-9_]+)",re.I)
+h = re.compile("(#\x02\x02[a-z0-9_]+)",re.I)
 s = re.compile("\s+")
 
 class Twitter(Callback):
@@ -24,13 +24,9 @@ class Twitter(Callback):
         if link:
             tweet = requests.get("https://api.twitter.com/1/statuses/oembed.json",params={"id":link.group(2)})
             if tweet.ok:
-                tweet = s.sub(" ",html.fromstring(n.sub("",tweet.json()["html"])).text.split("—")[0].replace("\n"," "))
-                mentions = m.findall(tweet)
-                hashtags = h.findall(tweet)
-                for _m in mentions:
-                    tweet = tweet.replace("@{}".format(_m),"\x03{}@{}\x03".format(mcolor,_m))
-                for _h in hashtags:
-                    tweet = tweet.replace("#{}".format(_h),"\x03{}#\x02\x02{}\x03".format(hcolor,_h))
+                tweet = s.sub(" ",html.fromstring(n.sub("",tweet.json()["html"])).text.split("—")[0].replace("\n"," ")).replace("#","#\x02\x02")
+                tweet = m.sub("\x03{}\g<0>\x03".format(mcolor),tweet)
+                tweet = h.sub("\x03{}\g<0>\x03".format(hcolor),tweet)
                 return "\x0310│\x03 {}".format(tweet)
 
 __initialise__ = Twitter
