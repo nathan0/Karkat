@@ -243,7 +243,7 @@ class CardsAgainstHumanity(object):
         
         self.printplayers()
         time.sleep(0.5)
-        self.printer.message(CAHPREFIX + "%s will be the Card Czar for Round %d%s." % (self.czar.nick, self.round, "of %d" % self.rounds if self.rounds else ""), self.channel)
+        self.printer.message(CAHPREFIX + "%s will be the Card Czar for Round %d %s." % (self.czar.nick, self.round, "of %d" % self.rounds if self.rounds else ""), self.channel)
         self.question = self.questions.pop()
         self.question = re.sub(r"\$([A-Z]+)", lambda x: self.var(x.group(1)), self.question)
 
